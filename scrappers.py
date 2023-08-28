@@ -18,8 +18,11 @@ class Scrapper(object):
         Initialize the Soup library data.
         """
         self.url = url
-        self.headers = {"Accept-Language": "en-US, en;q=0.5"}
-        self.soup = BeautifulSoup(self._request_url().content, "html.parser")
+        self.headers = {
+            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36"
+        }
+        content = self._request_url().content
+        self.soup = BeautifulSoup(content, "html.parser")
 
     def _request_url(self):
         return requests.get(url=self.url, headers=self.headers)
@@ -44,27 +47,17 @@ class HoroscopeScrapper(Scrapper):
         self._read_main_page()
 
     def _read_main_page(self):
-        for star_sign in self.soup.find_all(class_='fusion-column-wrapper'):
+        for star_sign in self.soup.find_all(class_='et_pb_column'):
             if star_sign.h2:
                 sign = self.dataclass.get_sign(star_sign.h2.get_text())
-                sign.url = star_sign.find(class_='fusion-imageframe').a['href']
+                sign.url = star_sign.a['href']
 
         self._read_each_sign()
 
     def _read_each_sign(self):
         for sign in self.dataclass.signs:
             super().__init__(url=sign.url)
-            info = self.soup.find(class_='fusion-text')
+            info = self.soup.find(id='main-content')
             for text in info.find_all('p'):
                 sign.message += text.get_text()
-        # self._send_bulk_sms()
 
-    # def _send_bulk_sms(self):
-    #     for user in self.USERS:
-    #         for sign in self.DATA:
-    #             if sign.get('sign') == user.sign:
-    #                 self._send_sms(sign.get('url'), user)
-    #                 break
-
-
-HoroscopeScrapper().run()

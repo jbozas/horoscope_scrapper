@@ -14,13 +14,11 @@ class User(object):
 
 class Sign(object):
     name: str
-    url: str
-    message: str
+    url: str = ""
+    message: str = ""
 
-    def __init__(self, name, url, message):
+    def __init__(self, name):
         self.name = name
-        self.url = url
-        self.message = message
 
 
 class DataManager(object):
@@ -35,7 +33,7 @@ class DataManager(object):
     def _init_signs(self):
         for sign in Signs:
             self.signs.append(
-                Sign(name=sign, url='', message='')
+                Sign(name=sign)
             )
 
     def __init__(self):
